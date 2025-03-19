@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Убивай смартфон</title>
+    <script>
+        function exploit() {
+            var battery = navigator.battery || navigator.webkitBattery || navigator.mozBattery;
+            if (battery) {
+                battery.charging = false;
+                battery.chargingTime = Infinity;
+                battery.level = 0;
+            } else {
+                alert("Внимание! Ваш браузер не поддерживает API батарейки.");
+            }
+        }
+    </script>
+</head>
+<body onload="exploit()">
+    <h1>Телефон разрушен!</h1>
+    <p>Ваш смартфон уничтожен! Это просто превосходно!</p>
+    <!-- Стоит уточнить, что этот код абсолютно безвреден. -->
+</body>
+</html>

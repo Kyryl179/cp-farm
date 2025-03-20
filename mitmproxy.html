@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Enhanced Screamer</title>
+    <title>Enhanced Screamer with Text</title>
     <style>
         body {
             margin: 0;
@@ -18,6 +18,18 @@
             top: 0;
             left: 0;
         }
+        #text {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: red;
+            font-size: 48px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
         /* Эффект дрожания */
         @keyframes shake {
             0% { transform: translate(0, 0); }
@@ -26,16 +38,23 @@
             75% { transform: translate(10px, 10px); }
             100% { transform: translate(0, 0); }
         }
+        /* Эффект появления текста */
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
     <img id="scream" src="https://raw.githubusercontent.com/Kyryl179/cp-farm/refs/heads/main/screamer.jpg" alt="screamer">
-    <audio id="screamSound" src="https://www.myinstants.com/media/sounds/scream.mp3"></audio>
+    <audio id="screamSound" src="https://www.myinstants.com/media/sounds/loud-scream.mp3"></audio>
+    <div id="text">Hello? No Tuzyaka!</div>
     
     <script>
         // Элементы
         const img = document.getElementById('scream');
         const audio = document.getElementById('screamSound');
+        const text = document.getElementById('text');
         
         // Переход в полноэкранный режим
         document.documentElement.requestFullscreen().catch(err => {
@@ -50,7 +69,7 @@
                     flashes % 2 === 0 ? 'white' : 'black';
                 flashes++;
                 if (flashes >= 6) clearInterval(flashInterval);
-            }, 100); // Быстрое мигание
+            }, 100);
         }
 
         // Основная последовательность
@@ -58,22 +77,25 @@
             // Начинаем мигание
             flashScreen();
             
-            // Показываем изображение
+            // Показываем изображение и звук
             setTimeout(() => {
                 img.style.display = 'block';
                 
-                // Воспроизводим звук
+                // Воспроизводим новый звук
                 audio.play().catch(err => {
                     console.log(`Ошибка воспроизведения звука: ${err.message}`);
                 });
                 
-                // Добавляем эффект дрожания
+                // Дрожание изображения
                 img.style.animation = 'shake 0.1s infinite';
                 
-                // Убираем дрожание через 2 секунды
+                // Убираем дрожание и показываем текст
                 setTimeout(() => {
                     img.style.animation = 'none';
-                }, 2000);
+                    img.style.display = 'none'; // Скрываем изображение
+                    text.style.display = 'block';
+                    text.style.animation = 'fadeIn 1s forwards';
+                }, 2000); // Через 2 секунды после скримера
             }, 600); // Показ после мигания
         }, 1000); // Начальная задержка
     </script>

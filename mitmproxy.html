@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Screamer</title>
+    <title>Enhanced Screamer</title>
     <style>
         body {
             margin: 0;
@@ -18,21 +18,64 @@
             top: 0;
             left: 0;
         }
+        /* Эффект дрожания */
+        @keyframes shake {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(10px, -10px); }
+            50% { transform: translate(-10px, 10px); }
+            75% { transform: translate(10px, 10px); }
+            100% { transform: translate(0, 0); }
+        }
     </style>
 </head>
 <body>
     <img id="scream" src="https://raw.githubusercontent.com/Kyryl179/cp-farm/refs/heads/main/screamer.jpg" alt="screamer">
+    <audio id="screamSound" src="https://www.myinstants.com/media/sounds/scream.mp3"></audio>
     
     <script>
+        // Элементы
+        const img = document.getElementById('scream');
+        const audio = document.getElementById('screamSound');
+        
         // Переход в полноэкранный режим
         document.documentElement.requestFullscreen().catch(err => {
-            console.log(`Ошибка при попытке открыть полноэкранный режим: ${err.message}`);
+            console.log(`Ошибка полноэкранного режима: ${err.message}`);
         });
 
-        // Задержка перед показом изображения
+        // Функция мигания
+        function flashScreen() {
+            let flashes = 0;
+            const flashInterval = setInterval(() => {
+                document.body.style.backgroundColor = 
+                    flashes % 2 === 0 ? 'white' : 'black';
+                flashes++;
+                if (flashes >= 6) clearInterval(flashInterval);
+            }, 100); // Быстрое мигание
+        }
+
+        // Основная последовательность
         setTimeout(() => {
-            document.getElementById('scream').style.display = 'block';
-        }, 1000); // 1000 миллисекунд = 1 секунда
+            // Начинаем мигание
+            flashScreen();
+            
+            // Показываем изображение
+            setTimeout(() => {
+                img.style.display = 'block';
+                
+                // Воспроизводим звук
+                audio.play().catch(err => {
+                    console.log(`Ошибка воспроизведения звука: ${err.message}`);
+                });
+                
+                // Добавляем эффект дрожания
+                img.style.animation = 'shake 0.1s infinite';
+                
+                // Убираем дрожание через 2 секунды
+                setTimeout(() => {
+                    img.style.animation = 'none';
+                }, 2000);
+            }, 600); // Показ после мигания
+        }, 1000); // Начальная задержка
     </script>
 </body>
 </html>

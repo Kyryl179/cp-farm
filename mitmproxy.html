@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Screamer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        #scream {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <img id="scream" src="https://raw.githubusercontent.com/Kyryl179/cp-farm/refs/heads/main/screamer.jpg" alt="screamer">
+    
+    <script>
+        // Переход в полноэкранный режим
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log(`Ошибка при попытке открыть полноэкранный режим: ${err.message}`);
+        });
+
+        // Задержка перед показом изображения
+        setTimeout(() => {
+            document.getElementById('scream').style.display = 'block';
+        }, 1000); // 1000 миллисекунд = 1 секунда
+    </script>
+</body>
+</html>

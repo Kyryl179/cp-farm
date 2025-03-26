@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Контролируемая нагрузка</title>
+    <title>Максимальная нагрузка</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -11,53 +11,63 @@
 <body>
     <canvas id="canvas"></canvas>
     <script>
-        // Контролируемая нагрузка CPU
-        function controlledCPU() {
+        // Максимальная нагрузка CPU
+        function maxCPU() {
             const workerCode = `
                 onmessage = function(e) {
                     let running = true;
                     self.addEventListener("message", (e) => { if (e.data === "stop") running = false; });
                     while (running) {
                         let x = 0;
-                        for (let i = 0; i < 1000000; i++) { // Уменьшено для контроля
-                            x += Math.sin(Math.random()) * Math.cos(Math.random());
+                        for (let i = 0; i < 5000000; i++) { // Увеличено до 5M
+                            x += Math.sin(Math.random()) * Math.cos(Math.random()) * Math.tan(Math.random());
                         }
                     }
                 };
             `;
             const workers = [];
-            const workerCount = Math.min(2, navigator.hardwareConcurrency); // Ограничим 2 воркерами
+            const workerCount = navigator.hardwareConcurrency; // Максимум ядер
             for (let i = 0; i < workerCount; i++) {
-                const blob = new Blob([workerCode], { type: "application/javascript" });
-                const worker = new Worker(URL.createObjectURL(blob));
-                workers.push(worker);
-                worker.postMessage("start");
+                try {
+                    const blob = new Blob([workerCode], { type: "application/javascript" });
+                    const worker = new Worker(URL.createObjectURL(blob));
+                    workers.push(worker);
+                    worker.postMessage("start");
+                } catch (e) {
+                    // Резерв для основного потока
+                    setInterval(() => {
+                        let x = 0;
+                        for (let i = 0; i < 5000000; i++) {
+                            x += Math.sin(Math.random()) * Math.cos(Math.random()) * Math.tan(Math.random());
+                        }
+                    }, 1);
+                }
             }
-            return () => workers.forEach(w => w.postMessage("stop")); // Возможность остановки
+            return () => workers.forEach(w => w.postMessage("stop"));
         }
 
-        // Контролируемая нагрузка памяти
-        function controlledMemory() {
+        // Максимальная нагрузка памяти
+        function maxMemory() {
             let memorySink = [];
             let totalSize = 0;
-            const maxSize = 100 * 1024 * 1024; // Лимит 100 МБ
+            const maxSize = 750 * 1024 * 1024; // 750 МБ — близко к лимиту iOS
             function leak() {
                 if (totalSize < maxSize) {
-                    const chunk = new Uint32Array(250000); // 1 МБ за раз
+                    const chunk = new Uint32Array(1000000); // 4 МБ за раз
                     memorySink.push(chunk);
                     totalSize += chunk.byteLength;
-                    setTimeout(leak, 100); // Задержка для контроля
+                    setTimeout(leak, 10); // Минимальная задержка
                 }
             }
             leak();
-            return () => memorySink = null; // Очистка
+            return () => memorySink = null;
         }
 
-        // Контролируемая нагрузка GPU
-        function controlledGPU() {
+        // Максимальная нагрузка GPU
+        function maxGPU() {
             const canvas = document.getElementById("canvas");
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth * 2; // Удвоенное разрешение
+            canvas.height = window.innerHeight * 2;
             const gl = canvas.getContext("webgl");
             if (!gl) return () => {};
 
@@ -70,10 +80,10 @@
                 uniform float uTime;
                 void main() {
                     float r = 0.0, g = 0.0, b = 0.0;
-                    for (int i = 0; i < 100; i++) { // Уменьшено с 10000
-                        r += sin(float(i) * uTime * 0.1);
-                        g += cos(float(i) * uTime * 0.2);
-                        b += tan(float(i) * uTime * 0.3);
+                    for (int i = 0; i < 1000; i++) { // Увеличено до 1000
+                        r += sin(float(i) * uTime * 0.1) * cos(float(i) * uTime * 0.05);
+                        g += cos(float(i) * uTime * 0.2) * sin(float(i) * uTime * 0.15);
+                        b += tan(float(i) * uTime * 0.3) * sin(float(i) * uTime * 0.25);
                     }
                     gl_FragColor = vec4(mod(r, 1.0), mod(g, 1.0), mod(b, 1.0), 1.0);
                 }
@@ -107,46 +117,47 @@
                 rafId = requestAnimationFrame(render);
             }
             render();
-            return () => cancelAnimationFrame(rafId); // Остановка
+            return () => cancelAnimationFrame(rafId);
         }
 
-        // Контролируемая нагрузка DOM
-        function controlledDOM() {
+        // Максимальная нагрузка DOM
+        function maxDOM() {
             let divCount = 0;
-            const maxDivs = 100; // Ограничение
+            const maxDivs = 1000; // Увеличено до 1000
             function createChaos() {
                 if (divCount < maxDivs) {
-                    for (let i = 0; i < 10; i++) {
+                    for (let i = 0; i < 50; i++) { // 50 элементов за раз
                         const div = document.createElement("div");
                         div.style.position = "absolute";
                         div.style.left = Math.random() * 100 + "%";
                         div.style.top = Math.random() * 100 + "%";
-                        div.style.width = "50px";
-                        div.style.height = "50px";
+                        div.style.width = "100px";
+                        div.style.height = "100px";
                         div.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        div.style.transform = `rotate(${Math.random() * 360}deg)`;
                         document.body.appendChild(div);
                         divCount++;
                     }
-                    setTimeout(createChaos, 100); // Задержка
+                    setTimeout(createChaos, 10); // Минимальная задержка
                 }
             }
             createChaos();
-            return () => document.querySelectorAll("div").forEach(d => d.remove()); // Очистка
+            return () => document.querySelectorAll("div").forEach(d => d.remove());
         }
 
         // Запуск с возможностью остановки
-        const stopCPU = controlledCPU();
-        const stopMemory = controlledMemory();
-        const stopGPU = controlledGPU();
-        const stopDOM = controlledDOM();
+        const stopCPU = maxCPU();
+        const stopMemory = maxMemory();
+        const stopGPU = maxGPU();
+        const stopDOM = maxDOM();
 
-        // Остановка через 10 секунд (пример)
+        // Остановка через 15 секунд (для теста)
         setTimeout(() => {
             stopCPU();
             stopMemory();
             stopGPU();
             stopDOM();
-        }, 10000);
+        }, 15000);
     </script>
 </body>
 </html>
